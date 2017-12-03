@@ -58,7 +58,9 @@ is_inside_triangle_3_aux(const typename K::Vector_3& w,
   typename K::Compute_scalar_product_3 scalar_product =
     k.compute_scalar_product_3_object();
 
-  const Vector_3 v = cross_product(vector(p1,p2), vector(p1,q), k);
+  //  const Vector_3 v = cross_product(vector(p1,p2), vector(p1,q), k);
+  const Vector_3 v = k.construct_cross_product_vector_3_object()(vector(p1,p2), vector(p1,q));
+
   if ( scalar_product(v,w) < FT(0))
   {
     if (   scalar_product(vector(p1,q), vector(p1,p2)) >= FT(0)
@@ -144,7 +146,8 @@ is_inside_triangle_3(const typename K::Point_3& p,
   const Point_3& t1 = vertex_on(t,1);
   const Point_3& t2 = vertex_on(t,2);
 
-  Vector_3 w = cross_product(vector(t0,t1), vector(t1,t2),k);
+  //  Vector_3 w = cross_product(vector(t0,t1), vector(t1,t2),k);
+  Vector_3 w = k.construct_cross_product_vector_3_object()(vector(t0, t1), vector(t1, t2));
 
   bool outside = false;
   if (   is_inside_triangle_3_aux(w, t0, t1, p, result, outside, k)
