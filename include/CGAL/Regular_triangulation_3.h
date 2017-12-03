@@ -438,8 +438,8 @@ private:
   {
       // In case of equality, v is returned.
       CGAL_triangulation_precondition(v != w);
-      if (is_infinite(v))	  return w;
-      if (is_infinite(w))	  return v;
+      if (this->is_infinite(v))	  return w;
+      if (this->is_infinite(w))	  return v;
       return less_power_distance(p, w->point(), v->point()) ? w : v;
   }
 
@@ -735,7 +735,7 @@ Regular_triangulation_3<Gt,Tds>::
 dual(Cell_handle c) const
 {
   CGAL_triangulation_precondition(dimension()==3);
-  CGAL_triangulation_precondition( ! is_infinite(c) );
+  CGAL_triangulation_precondition( ! this->is_infinite(c) );
   return construct_weighted_circumcenter( c->vertex(0)->point(),
 					  c->vertex(1)->point(),
 					  c->vertex(2)->point(),
@@ -748,7 +748,7 @@ Regular_triangulation_3<Gt,Tds>::
 dual(Cell_handle c, int i) const
 {
   CGAL_triangulation_precondition(dimension()>=2);
-  CGAL_triangulation_precondition( ! is_infinite(c,i) );
+  CGAL_triangulation_precondition( ! this->is_infinite(c,i) );
 
   if ( dimension() == 2 ) {
     CGAL_triangulation_precondition( i == 3 );
@@ -760,12 +760,12 @@ dual(Cell_handle c, int i) const
 
   // dimension() == 3
   Cell_handle n = c->neighbor(i);
-  if ( ! is_infinite(c) && ! is_infinite(n) )
-    return construct_object(construct_segment( dual(c), dual(n) ));
+  if ( ! this->is_infinite(c) && ! this->is_infinite(n) )
+    return construct_object(this->construct_segment( dual(c), dual(n) ));
 
   // either n or c is infinite
   int in;
-  if ( is_infinite(c) ) 
+  if ( this->is_infinite(c) ) 
     in = n->index(c);
   else {
     n = c;
@@ -1048,17 +1048,17 @@ side_of_power_segment(Cell_handle c, const Weighted_point &p,
                       bool perturb) const
 {
   CGAL_triangulation_precondition( dimension() == 1 );
-  if ( ! is_infinite(c,0,1) )
+  if ( ! this->is_infinite(c,0,1) )
     return side_of_bounded_power_segment(c->vertex(0)->point(),
                                          c->vertex(1)->point(),
                                          p, perturb);
   Locate_type lt; int i;
-  Bounded_side soe = side_of_edge( p, c, lt, i );
+  Bounded_side soe = this->side_of_edge( p, c, lt, i );
   if (soe != ON_BOUNDARY)
     return soe;
   // Either we compare weights, or we use the finite neighboring edge
   Cell_handle finite_neighbor = c->neighbor(c->index(infinite_vertex()));
-  CGAL_triangulation_assertion(!is_infinite(finite_neighbor,0,1));
+  CGAL_triangulation_assertion(!this->is_infinite(finite_neighbor,0,1));
   return side_of_bounded_power_segment(finite_neighbor->vertex(0)->point(),
                                        finite_neighbor->vertex(1)->point(),
                                        p, perturb);
@@ -1077,12 +1077,12 @@ bool
 Regular_triangulation_3<Gt,Tds>::
 is_Gabriel(Cell_handle c, int i) const
 {
-  CGAL_triangulation_precondition(dimension() == 3 && !is_infinite(c,i));
+  CGAL_triangulation_precondition(dimension() == 3 && !this->is_infinite(c,i));
   typename Geom_traits::Side_of_bounded_orthogonal_sphere_3
     side_of_bounded_orthogonal_sphere = 
     geom_traits().side_of_bounded_orthogonal_sphere_3_object();
 
-  if ((!is_infinite(c->vertex(i))) &&
+  if ((!this->is_infinite(c->vertex(i))) &&
       side_of_bounded_orthogonal_sphere(
 	 c->vertex(vertex_triple_index(i,0))->point(),
 	 c->vertex(vertex_triple_index(i,1))->point(),
@@ -1092,7 +1092,7 @@ is_Gabriel(Cell_handle c, int i) const
   Cell_handle neighbor = c->neighbor(i);
   int in = neighbor->index(c);
 
-  if ((!is_infinite(neighbor->vertex(in))) &&
+  if ((!this->is_infinite(neighbor->vertex(in))) &&
       side_of_bounded_orthogonal_sphere(
 	 c->vertex(vertex_triple_index(i,0))->point(),
 	 c->vertex(vertex_triple_index(i,1))->point(),
@@ -1116,7 +1116,7 @@ bool
 Regular_triangulation_3<Gt,Tds>::
 is_Gabriel(Cell_handle c, int i, int j) const
 {
-  CGAL_triangulation_precondition(dimension() == 3 && !is_infinite(c,i,j));
+  CGAL_triangulation_precondition(dimension() == 3 && !this->is_infinite(c,i,j));
   typename Geom_traits::Side_of_bounded_orthogonal_sphere_3
     side_of_bounded_orthogonal_sphere = 
     geom_traits().side_of_bounded_orthogonal_sphere_3_object();
@@ -1130,7 +1130,7 @@ is_Gabriel(Cell_handle c, int i, int j) const
       // is inside the sphere defined by the edge e = (s, i,j)
       Cell_handle cc = (*fcirc).first;
       int ii = (*fcirc).second;
-      if (!is_infinite(cc->vertex(ii)) &&
+      if (!this->is_infinite(cc->vertex(ii)) &&
 	  side_of_bounded_orthogonal_sphere( v1->point(), 
 					 v2->point(),
 					 cc->vertex(ii)->point())  
@@ -1250,7 +1250,7 @@ typename Regular_triangulation_3<Gt,Tds>::Vertex_handle
 Regular_triangulation_3<Gt,Tds>::
 move_point(Vertex_handle v, const Weighted_point & p)
 {
-    CGAL_triangulation_precondition(! is_infinite(v));
+    CGAL_triangulation_precondition(! this->is_infinite(v));
     CGAL_triangulation_expensive_precondition(is_vertex(v));
  
     // Dummy implementation for a start.
@@ -1287,7 +1287,7 @@ is_valid(bool verbose, int level) const
       for ( it = finite_cells_begin(); it != finite_cells_end(); ++it ) {
 	is_valid_finite(it, verbose, level);
 	for (int i=0; i<4; i++ ) {
-	  if ( !is_infinite
+	  if ( !this->is_infinite
 	       (it->neighbor(i)->vertex(it->neighbor(i)->index(it))) ) {
 	    if ( side_of_power_sphere
 		 (it,
@@ -1309,7 +1309,7 @@ is_valid(bool verbose, int level) const
       for ( it = finite_facets_begin(); it != finite_facets_end(); ++it ) {
 	is_valid_finite((*it).first, verbose, level);
 	for (int i=0; i<3; i++ ) {
-	  if( !is_infinite
+	  if( !this->is_infinite
 	      ((*it).first->neighbor(i)->vertex( (((*it).first)->neighbor(i))
 						 ->index((*it).first))) ) {
 	    if ( side_of_power_circle
@@ -1334,7 +1334,7 @@ is_valid(bool verbose, int level) const
       for ( it = finite_edges_begin(); it != finite_edges_end(); ++it ) {
 	is_valid_finite((*it).first, verbose, level);
 	for (int i=0; i<2; i++ ) {
-	  if( !is_infinite
+	  if( !this->is_infinite
 	      ((*it).first->neighbor(i)->vertex( (((*it).first)->neighbor(i))
 						 ->index((*it).first))) ) {
 	    if ( side_of_power_segment
