@@ -146,7 +146,7 @@ public:
         Locate_type lt;
         Cell_handle c;
         int li, lj;
-        c = locate (*p, lt, li, lj, hint);
+        c = this->locate (*p, lt, li, lj, hint);
 
         Vertex_handle v = insert (*p, lt, c, li, lj);
 
@@ -707,7 +707,7 @@ nearest_power_vertex(const Bare_point& p, Cell_handle start) const
     int li, lj;
     // I put the cast here temporarily 
     // until we solve the traits class pb of regular triangulation
-    Cell_handle c = locate(static_cast<Weighted_point>(p), lt, li, lj, start);
+    Cell_handle c = this->locate(static_cast<Weighted_point>(p), lt, li, lj, start);
   
     // - start with the closest vertex from the located cell.
     // - repeatedly take the nearest of its incident vertices if any
@@ -1154,7 +1154,7 @@ insert(const Weighted_point & p, Cell_handle start)
 {
     Locate_type lt;
     int li, lj;
-    Cell_handle c = locate(p, lt, li, lj, start);
+    Cell_handle c = this->locate(p, lt, li, lj, start);
     return insert(p, lt, c, li, lj);
 }
 
@@ -1167,22 +1167,22 @@ insert(const Weighted_point & p, Locate_type lt, Cell_handle c, int li, int lj)
   case 3:
     {
       Conflict_tester_3 tester (p, this);
-      return insert_in_conflict(p, lt,c,li,lj, tester, hidden_point_visitor);
+      return this->insert_in_conflict(p, lt,c,li,lj, tester, hidden_point_visitor);
     }
   case 2: 
     {
       Conflict_tester_2 tester (p, this);
-      return insert_in_conflict(p, lt,c,li,lj, tester, hidden_point_visitor);
+      return this->insert_in_conflict(p, lt,c,li,lj, tester, hidden_point_visitor);
     }
   case 1: 
     {
       Conflict_tester_1 tester (p, this);
-      return insert_in_conflict(p, lt,c,li,lj, tester, hidden_point_visitor);
+      return this->insert_in_conflict(p, lt,c,li,lj, tester, hidden_point_visitor);
     }
   }
 
   Conflict_tester_0 tester (p, this);
-  return insert_in_conflict(p, lt,c,li,lj, tester, hidden_point_visitor);
+  return this->insert_in_conflict(p, lt,c,li,lj, tester, hidden_point_visitor);
 }
 
 template <class Gt, class Tds >

@@ -396,9 +396,9 @@ private:
       // In case of equality, v is returned.
       CGAL_triangulation_precondition(v != w);
 
-      if (is_infinite(v))
+      if (this->is_infinite(v))
 	  return w;
-      if (is_infinite(w))
+      if (this->is_infinite(w))
 	  return v;
       return less_distance(p, w->point(), v->point()) ? w : v;
   }
@@ -522,7 +522,7 @@ insert(const Point & p, Cell_handle start)
 {
     Locate_type lt;
     int li, lj;
-    Cell_handle c = locate(p, lt, li, lj, start);
+    Cell_handle c = this->locate(p, lt, li, lj, start);
     return insert(p, lt, c, li, lj);
 }
 
@@ -535,14 +535,14 @@ insert(const Point & p, Locate_type lt, Cell_handle c, int li, int lj)
   case 3:
     {
       Conflict_tester_3 tester(p, this);
-      Vertex_handle v = insert_in_conflict(p, lt, c, li, lj, 
+      Vertex_handle v = this->insert_in_conflict(p, lt, c, li, lj, 
 					   tester, hidden_point_visitor);
       return v;
     }// dim 3
   case 2:
     {
       Conflict_tester_2 tester(p, this);
-      return insert_in_conflict(p, lt, c, li, lj, 
+      return this->insert_in_conflict(p, lt, c, li, lj, 
 				tester, hidden_point_visitor);
     }//dim 2
   default :
@@ -557,7 +557,7 @@ typename Delaunay_triangulation_3<Gt,Tds>::Vertex_handle
 Delaunay_triangulation_3<Gt,Tds>::
 move_point(Vertex_handle v, const Point & p)
 {
-    CGAL_triangulation_precondition(! is_infinite(v));
+    CGAL_triangulation_precondition(! this->is_infinite(v));
     CGAL_triangulation_expensive_precondition(is_vertex(v));
 
     // Dummy implementation for a start.
@@ -744,28 +744,28 @@ side_of_sphere(const Vertex_handle& v0, const Vertex_handle& v1,
     const Point &p2 = v2->point();
     const Point &p3 = v3->point();
 
-    if (is_infinite(v0)) {
+    if (this->is_infinite(v0)) {
 	Orientation o = orientation(p2, p1, p3, p);
 	if (o != COPLANAR)
 	    return Bounded_side(o);
 	return coplanar_side_of_bounded_circle(p2, p1, p3, p, perturb);
     }
 
-    if (is_infinite(v1)) {
+    if (this->is_infinite(v1)) {
 	Orientation o = orientation(p2, p3, p0, p);
 	if (o != COPLANAR)
 	    return Bounded_side(o);
 	return coplanar_side_of_bounded_circle(p2, p3, p0, p, perturb);
     }
 
-    if (is_infinite(v2)) {
+    if (this->is_infinite(v2)) {
 	Orientation o = orientation(p1, p0, p3, p);
 	if (o != COPLANAR)
 	    return Bounded_side(o);
 	return coplanar_side_of_bounded_circle(p1, p0, p3, p, perturb);
     }
 
-    if (is_infinite(v3)) {
+    if (this->is_infinite(v3)) {
 	Orientation o = orientation(p0, p1, p2, p);
 	if (o != COPLANAR)
 	    return Bounded_side(o);
@@ -821,7 +821,7 @@ side_of_circle(const Cell_handle& c, int i,
     int i_e;
     Locate_type lt;
     // case when p collinear with v1v2
-    return side_of_segment( p,
+    return this->side_of_segment( p,
 			    v1->point(), v2->point(),
 			    lt, i_e );
   }
@@ -862,7 +862,7 @@ side_of_circle(const Cell_handle& c, int i,
   int i_e;
   Locate_type lt;
   // case when p collinear with v1v2
-  return side_of_segment( p,
+  return this->side_of_segment( p,
 			  v1->point(), v2->point(),
 			  lt, i_e );
 }
@@ -903,7 +903,7 @@ nearest_vertex(const Point& p, Cell_handle start) const
 
     Locate_type lt;
     int li, lj;
-    Cell_handle c = locate(p, lt, li, lj, start);
+    Cell_handle c = this->locate(p, lt, li, lj, start);
     if (lt == Tr_Base::VERTEX)
 	return c->vertex(li);
 
@@ -942,12 +942,12 @@ bool
 Delaunay_triangulation_3<Gt,Tds>::
 is_Gabriel(Cell_handle c, int i) const
 {
-  CGAL_triangulation_precondition(dimension() == 3 && !is_infinite(c,i));
+  CGAL_triangulation_precondition(dimension() == 3 && !this->is_infinite(c,i));
   typename Geom_traits::Side_of_bounded_sphere_3
     side_of_bounded_sphere =
     geom_traits().side_of_bounded_sphere_3_object();
 
-  if ((!is_infinite(c->vertex(i))) &&
+  if ((!this->is_infinite(c->vertex(i))) &&
       side_of_bounded_sphere (
 	c->vertex(vertex_triple_index(i,0))->point(),
 	c->vertex(vertex_triple_index(i,1))->point(),
@@ -956,7 +956,7 @@ is_Gabriel(Cell_handle c, int i) const
     Cell_handle neighbor = c->neighbor(i);
   int in = neighbor->index(c);
 
-  if ((!is_infinite(neighbor->vertex(in))) &&
+  if ((!this->is_infinite(neighbor->vertex(in))) &&
       side_of_bounded_sphere(
 	 c->vertex(vertex_triple_index(i,0))->point(),
 	 c->vertex(vertex_triple_index(i,1))->point(),
@@ -979,7 +979,7 @@ bool
 Delaunay_triangulation_3<Gt,Tds>::
 is_Gabriel(Cell_handle c, int i, int j) const
 {
-  CGAL_triangulation_precondition(dimension() == 3 && !is_infinite(c,i,j));
+  CGAL_triangulation_precondition(dimension() == 3 && !this->is_infinite(c,i,j));
   typename Geom_traits::Side_of_bounded_sphere_3
     side_of_bounded_sphere =
     geom_traits().side_of_bounded_sphere_3_object();
@@ -993,7 +993,7 @@ is_Gabriel(Cell_handle c, int i, int j) const
       // is inside the sphere defined by the edge e = (s, i,j)
       Cell_handle cc = (*fcirc).first;
       int ii = (*fcirc).second;
-      if (!is_infinite(cc->vertex(ii)) &&
+      if (!this->is_infinite(cc->vertex(ii)) &&
 	   side_of_bounded_sphere( v1->point(),
 				   v2->point(),
 				   cc->vertex(ii)->point())
@@ -1008,7 +1008,7 @@ Delaunay_triangulation_3<Gt,Tds>::
 dual(Cell_handle c) const
 {
   CGAL_triangulation_precondition(dimension()==3);
-  CGAL_triangulation_precondition( ! is_infinite(c) );
+  CGAL_triangulation_precondition( ! this->is_infinite(c) );
   return c->circumcenter(geom_traits());
 }
 
@@ -1019,7 +1019,7 @@ Delaunay_triangulation_3<Gt,Tds>::
 dual(Cell_handle c, int i) const
 {
   CGAL_triangulation_precondition(dimension()>=2);
-  CGAL_triangulation_precondition( ! is_infinite(c,i) );
+  CGAL_triangulation_precondition( ! this->is_infinite(c,i) );
 
   if ( dimension() == 2 ) {
     CGAL_triangulation_precondition( i == 3 );
@@ -1030,12 +1030,12 @@ dual(Cell_handle c, int i) const
 
   // dimension() == 3
   Cell_handle n = c->neighbor(i);
-  if ( ! is_infinite(c) && ! is_infinite(n) )
+  if ( ! this->is_infinite(c) && ! this->is_infinite(n) )
     return construct_object(construct_segment( dual(c), dual(n) ));
 
   // either n or c is infinite
   int in;
-  if ( is_infinite(c) )
+  if ( this->is_infinite(c) )
     in = n->index(c);
   else {
     n = c;
@@ -1061,7 +1061,7 @@ Delaunay_triangulation_3<Gt,Tds>::
 dual_support(Cell_handle c, int i) const
 {
   CGAL_triangulation_precondition(dimension()>=2);
-  CGAL_triangulation_precondition( ! is_infinite(c,i) );
+  CGAL_triangulation_precondition( ! this->is_infinite(c,i) );
 
   if ( dimension() == 2 ) {
     CGAL_triangulation_precondition( i == 3 );
@@ -1100,9 +1100,9 @@ is_valid(bool verbose, int level) const
     {
       Finite_cells_iterator it;
       for ( it = finite_cells_begin(); it != finite_cells_end(); ++it ) {
-	is_valid_finite(it);
+	this->is_valid_finite(it);
 	for (int i=0; i<4; i++ ) {
-	  if ( !is_infinite
+	  if ( !this->is_infinite
 	       (it->neighbor(i)->vertex(it->neighbor(i)->index(it))) ) {
 	    if ( side_of_sphere
 		 (it,
@@ -1122,9 +1122,9 @@ is_valid(bool verbose, int level) const
     {
       Finite_facets_iterator it;
       for ( it = finite_facets_begin(); it != finite_facets_end(); ++it ) {
-	is_valid_finite((*it).first);
+	this->is_valid_finite((*it).first);
 	for (int i=0; i<3; i++ ) {
-	  if( !is_infinite
+	  if( !this->is_infinite
 	      ((*it).first->neighbor(i)->vertex( (((*it).first)->neighbor(i))
 						 ->index((*it).first))) ) {
 	    if ( side_of_circle ( (*it).first, 3,
@@ -1146,7 +1146,7 @@ is_valid(bool verbose, int level) const
     {
       Finite_edges_iterator it;
       for ( it = finite_edges_begin(); it != finite_edges_end(); ++it )
-	is_valid_finite((*it).first);
+	this->is_valid_finite((*it).first);
       break;
     }
   }
@@ -1173,8 +1173,8 @@ is_valid(Cell_handle c, bool verbose, int level) const
   switch ( dimension() ) {
   case 3:
     {
-      if ( ! is_infinite(c) ) {
-	is_valid_finite(c,verbose,level);
+      if ( ! this->is_infinite(c) ) {
+	this->is_valid_finite(c,verbose,level);
 	for (int i=0; i<4; i++ ) {
 	  if (side_of_sphere(c, c->vertex((c->neighbor(i))->index(c))->point())
 	      == ON_BOUNDED_SIDE ) {
@@ -1189,7 +1189,7 @@ is_valid(Cell_handle c, bool verbose, int level) const
     }
   case 2:
     {
-      if ( ! is_infinite(c,3) ) {
+      if ( ! this->is_infinite(c,3) ) {
 	for (int i=0; i<2; i++ ) {
 	  if (side_of_circle(c, 3, c->vertex(c->neighbor(i)->index(c))->point())
 	       == ON_BOUNDED_SIDE ) {
@@ -1287,7 +1287,7 @@ fill_hole_3D_ear(const std::vector<Facet> & boundhole)
     v1 = w1->info();
     v2 = w2->info();
 
-    if( is_infinite(v1) || is_infinite(v2) ){
+    if( this->is_infinite(v1) || this->is_infinite(v2) ){
 	// there will be another ear, so let's ignore this one,
 	// because it is complicated to treat
 	continue;
@@ -1298,7 +1298,7 @@ fill_hole_3D_ear(const std::vector<Facet> & boundhole)
     v0 = w0->info();
     v3 = w3->info();
 
-    if( !is_infinite(v0) && !is_infinite(v3) &&
+    if( !this->is_infinite(v0) && !this->is_infinite(v3) &&
 	  orientation(v0->point(), v1->point(),
 		      v2->point(), v3->point()) != POSITIVE)
         continue;
@@ -1309,7 +1309,7 @@ fill_hole_3D_ear(const std::vector<Facet> & boundhole)
     for(typename Surface::Vertex_iterator vit = surface.vertices_begin();
 	vit != surface.vertices_end(); ++vit) {
       Vertex_handle v = vit->info();
-      if (is_infinite(v) || v == v0 || v == v1 || v == v2 || v == v3)
+      if (this->is_infinite(v) || v == v0 || v == v1 || v == v2 || v == v3)
 	  continue;
 
       if (side_of_sphere(v0,v1,v2,v3, v->point(), true) == ON_BOUNDED_SIDE)
